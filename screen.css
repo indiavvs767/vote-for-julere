@@ -1,0 +1,17 @@
+/* Extra styles for screens, animations, and accessibility tweaks */
+:root{--slow:600ms}
+*{scroll-behavior:smooth}
+.hero-content h2{animation:slideIn var(--slow) ease both}
+@keyframes slideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+
+button:focus, input:focus, select:focus, textarea:focus{outline:3px solid rgba(109,92,255,0.12);outline-offset:3px}
+
+
+/* Small helper for hidden redirect section */
+.redirect-hidden{display:none}
+.redirect-visible{display:block;padding:20px;background:linear-gradient(90deg,#fff,#fffefc);border-radius:12px}
+
+
+/* Print rules */
+@media print{header, .main-nav, .cta, .btn{display:none}body{background:#fff}}
