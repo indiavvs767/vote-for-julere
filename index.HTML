@@ -1,0 +1,59 @@
+<!doctype html>
+
+
+<label>Upload headshot (optional)<input type="file" name="photo" accept="image/*"></label>
+
+
+<div class="form-actions">
+<button type="submit" class="btn">Submit Application</button>
+<button type="button" class="btn ghost" id="save-draft">Save Draft</button>
+</div>
+
+
+<p class="disclaimer">By submitting, you agree to our <a href="#">terms &amp; privacy</a>.</p>
+</form>
+</section>
+
+
+<section id="checkout" class="checkout">
+<h3>Tickets & Checkout</h3>
+<div class="products">
+<div class="product">
+<h4>General Admission</h4>
+<p>Standard seating.</p>
+<div class="price">$25</div>
+<button class="btn add-to-cart" data-title="General Admission" data-price="25">Add</button>
+</div>
+<div class="product">
+<h4>VIP Ticket</h4>
+<p>Front row + meet & greet.</p>
+<div class="price">$120</div>
+<button class="btn add-to-cart" data-title="VIP Ticket" data-price="120">Add</button>
+</div>
+</div>
+<div id="cart" class="cart">
+<h4>Your Cart</h4>
+<ul id="cart-items"></ul>
+<div class="cart-total">Total: $<span id="cart-total">0</span></div>
+<button class="btn" id="checkout-btn">Checkout</button>
+</div>
+</section>
+
+
+<section id="redirect" class="redirect-hidden" aria-live="polite">
+<!-- Redirection result will render here -->
+</section>
+</main>
+
+
+<footer class="site-footer">
+<div>© <span id="year"></span> BEAUTY PALOZZA</div>
+<div class="socials">
+<a href="#">Instagram</a> · <a href="#">Facebook</a> · <a href="#">TikTok</a>
+</div>
+</footer>
+
+
+<script src="script.js"></script>
+</body>
+</html>
