@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Signup — Optional SSN / Driver's License</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.4}
+    body{max-width:900px;margin:32px auto;padding:24px}
+    form{background:#f9f9f9;border:1px solid #eee;padding:20px;border-radius:8px}
+    fieldset{border:none;margin:0;padding:0}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    label{display:block;font-size:0.92rem;margin-bottom:6px}
+    input,select,button,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem}
+    .hint{font-size:0.85rem;color:#555}
+    .optional{font-size:0.85rem;color:#666;margin-left:6px}
+    .reveal{display:none;margin-top:12px}
+    .error{color:#b00020;font-size:0.9rem}
+    .visually-hidden{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:16px}
+  </style>
+</head>
+<body>
+  <h1>Sign up</h1>
+  <p class="hint">Only provide SSN or Driver's License if required. These fields are optional and collected securely.</p>
+
+  <form id="signupForm" action="/signup" method="POST" autocomplete="on" novalidate>
+    <!-- NOTE: Replace /signup with your real backend endpoint. Always use HTTPS. -->
+
+    <fieldset>
+      <legend class="visually-hidden">Account information</legend>
+
+      <div class="row">
+        <div>
+          <label for="firstName">First name</label>
+          <input id="firstName" name="firstName" type="text" autocomplete="given-name" required />
+        </div>
+        <div>
+          <label for="lastName">Last name</label>
+          <input id="lastName" name="lastName" type="text" autocomplete="family-name" required />
+        </div>
+      </div>
+
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+
+      <div class="row">
+        <div>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="pwHint" />
+          <div id="pwHint" class="hint">At least 8 characters. Use a mix of letters, numbers, and symbols.</div>
+        </div>
+        <div>
+          <label for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required />
+        </div>
+      </div>
+
+      <hr />
+
+      <label>Do you want to provide additional government ID?</label>
+      <div style="display:flex;gap:12px;margin-top:6px;margin-bottom:12px;align-items:center">
+        <label><input type="radio" name="idChoice" value="none" checked /> No — skip</label>
+        <label><input type="radio" name="idChoice" value="ssn" /> SSN</label>
+        <label><input type="radio" name="idChoice" value="dl" /> Driver's license</label>
+      </div>
+
+      <!-- SSN block (optional) -->
+      <div id="ssnBlock" class="reveal" aria-hidden="true">
+        <label for="ssn">Social Security Number (SSN)</label>
+        <input id="ssn" name="ssn" inputmode="numeric" maxlength="11" placeholder="XXX-XX-XXXX" pattern="^\d{3}-\d{2}-\d{4}$" />
+        <div class="hint">If provided, SSN will be transmitted encrypted and stored only as required. Do not paste into public places.</div>
+      </div>
+
+      <!-- Driver's license block (optional) -->
+      <div id="dlBlock" class="reveal" aria-hidden="true">
+        <label for="dlNumber">Driver's License number</label>
+        <input id="dlNumber" name="dlNumber" inputmode="text" maxlength="32" placeholder="State and number (if applicable)" />
+        <label for="dlState">Issuing state / region <span class="optional">(optional)</span></label>
+        <input id="dlState" name="dlState" type="text" maxlength="32" placeholder="e.g. CA" />
+        <div class="hint">Driver's license stored only if required for verification.</div>
+      </div>
+
+      <div id="formErrors" class="error" role="alert" aria-live="polite" style="display:none"></div>
+
+      <div class="actions">
+        <button type="submit">Create account</button>
+        <button type="button" id="resetBtn">Reset</button>
+        <div class="hint">By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</div>
+      </div>
+
+    </fieldset>
+
+    <!-- Security hints for server-side: include a csrf token, example below -->
+    <input type="hidden" name="csrf_token" value="{{csrf_token_here}}" />
+  </form>
+
+  <script>
+    // Small progressive JS to show/hide optional ID fields and do client-side validation/masking
+    (function(){
+      const form = document.getElementById('signupForm');
+      const ssnBlock = document.getElementById('ssnBlock');
+      const dlBlock = document.getElementById('dlBlock');
+      const formErrors = document.getElementById('formErrors');
+      const resetBtn = document.getElementById('resetBtn');
+
+      function showBlock(block, show){
+        block.style.display = show ? 'block' : 'none';
+        block.setAttribute('aria-hidden', (!show).toString());
+        // clear inputs when hiding to avoid accidental submission
+        if(!show){
+          block.querySelectorAll('input').forEach(i => i.value = '');
+        }
+      }
+
+      // radio change
+      form.addEventListener('change', function(e){
+        if(e.target.name === 'idChoice'){
+          const val = e.target.value;
+          showBlock(ssnBlock, val === 'ssn');
+          showBlock(dlBlock, val === 'dl');
+        }
+      });
+
+      // simple SSN mask while typing (keeps only digits)
+      const ssnInput = document.getElementById('ssn');
+      ssnInput.addEventListener('input', function(e){
+        const digits = this.value.replace(/\D/g,'').slice(0,9);
+        let out = digits;
+        if(digits.length > 5) out = digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
+        else if(digits.length > 3) out = digits.slice(0,3) + '-' + digits.slice(3);
+        this.value = out;
+      });
+
+      // form submit handler — do client-side checks and show friendly message; backend must re-validate
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        formErrors.style.display = 'none';
+        formErrors.textContent = '';
+
+        // basic password match check
+        const pw = document.getElementById('password').value;
+        const cpw = document.getElementById('confirmPassword').value;
+        if(pw !== cpw){
+          showError('Passwords do not match.');
+          return;
+        }
+        if(pw.length < 8){
+          showError('Password must be at least 8 characters.');
+          return;
+        }
+
+        // If SSN field is visible, validate pattern
+        if(ssnBlock.style.display === 'block'){
+          const ssnVal = ssnInput.value;
+          const ssnPat = /^\d{3}-\d{2}-\d{4}$/;
+          if(!ssnPat.test(ssnVal)){
+            showError('SSN must be in the format XXX-XX-XXXX.');
+            return;
+          }
+        }
+
+        // If driver's license shown, ensure something entered
+        if(dlBlock.style.display === 'block'){
+          const dl = document.getElementById('dlNumber').value.trim();
+          if(!dl){
+            showError("Please enter driver's license number or choose 'No — skip'.");
+            return;
+          }
+        }
+
+        // All client checks passed — submit the form. IMPORTANT: server must use HTTPS and re-validate everything.
+        // You can change to fetch() for JSON-based APIs. Here we do a regular form submit.
+        form.submit();
+      });
+
+      function showError(msg){
+        formErrors.style.display = 'block';
+        formErrors.textContent = msg;
+      }
+
+      resetBtn.addEventListener('click', function(){
+        form.reset();
+        showBlock(ssnBlock,false);
+        showBlock(dlBlock,false);
+        formErrors.style.display = 'none';
+      });
+
+      // accessibility: show the correct block if browser autofills radio on load
+      window.addEventListener('load', function(){
+        const chosen = form.querySelector('input[name="idChoice"]:checked');
+        if(chosen){
+          const v = chosen.value;
+          showBlock(ssnBlock, v==='ssn');
+          showBlock(dlBlock, v==='dl');
+        }
+      });
+
+    })();
+  </script>
+
+  <!-- Implementation notes (frontend only):
+       - Never rely on client-side validation for security; validate on server-side.
+       - Use TLS (HTTPS) for transport. Use strong encryption at rest for SSN/DL if storing.
+       - Minimize retention: store only what's necessary. Consider using tokenized/hashed forms for SSNs.
+       - Log carefully: never log full SSNs or unmasked IDs.
+       - Follow governing laws and regulations (e.g., GDPR, local privacy laws) and industry best practices.
+  -->
+</body>
+</html>

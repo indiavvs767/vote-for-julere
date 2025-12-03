@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign Up — Secure Demo</title>
+  <style>
+    /* Minimal modern styling */
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.4;margin:0;background:linear-gradient(180deg,#f0f4ff 0%,var(--bg) 100%);padding:28px;}
+    .container{max-width:920px;margin:0 auto}
+    .card{background:var(--card);border-radius:14px;box-shadow:0 6px 30px rgba(18,38,63,0.08);padding:28px}
+    h1{margin:0 0 8px;font-size:22px}
+    p.lead{margin:0 0 20px;color:var(--muted)}
+    form{display:grid;grid-template-columns:1fr 360px;gap:20px}
+    fieldset{border:1px solid #eef2ff;border-radius:10px;padding:16px}
+    label{display:block;font-size:13px;margin-bottom:6px;color:#111827}
+    input[type=text],input[type=email],input[type=tel],input[type=password],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9f2}
+    textarea{min-height:84px;resize:vertical}
+    .small{font-size:13px;color:var(--muted)}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    button{background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .file-preview{display:flex;flex-direction:column;gap:8px}
+    .thumb{width:100%;max-width:320px;border-radius:8px;border:1px dashed #dbeafe;padding:8px;background:#fbfdff}
+    .otp-box{display:flex;gap:8px}
+    .otp-input{padding:10px;border-radius:8px;border:1px solid #e6e9f2;width:60px;text-align:center;font-weight:600}
+    .actions{display:flex;gap:12px;align-items:center}
+    .login-link{background:transparent;color:var(--accent);border:1px solid rgba(37,99,235,0.12);padding:8px 12px;border-radius:8px}
+    @media(max-width:880px){form{grid-template-columns:1fr} .thumb{max-width:100%}}
+    .note{background:#fff7ed;border:1px solid #ffe4b5;padding:10px;border-radius:8px;color:#92400e}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Create account</h1>
+      <p class="lead">Fill in your details. This demo shows client-side behaviour only — you must implement secure server-side handling for production.</p>
+
+      <form id="signupForm" novalidate>
+        <div>
+          <fieldset>
+            <legend><strong>Personal details</strong></legend>
+
+            <label for="fullname">Full name</label>
+            <input id="fullname" name="fullname" type="text" placeholder="Jane Doe" required />
+
+            <div class="row" style="margin-top:12px">
+              <div class="col">
+                <label for="phone">Phone number</label>
+                <input id="phone" name="phone" type="tel" placeholder="+1 555 555 5555" inputmode="tel" />
+              </div>
+
+              <div class="col">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" placeholder="you@example.com" required />
+              </div>
+            </div>
+
+            <div style="margin-top:12px">
+              <label for="address">Address</label>
+              <textarea id="address" name="address" placeholder="Street, City, State / Region, Postal code"></textarea>
+            </div>
+
+            <div style="margin-top:12px">
+              <label for="ssn">Social Security Number (SSN)</label>
+              <input id="ssn" name="ssn" type="password" placeholder="XXX-XX-XXXX" aria-describedby="ssnNote" />
+              <div id="ssnNote" class="small">We store sensitive fields encrypted on server. Do not use real SSNs in demo environments.</div>
+            </div>
+
+          </fieldset>
+
+          <fieldset style="margin-top:16px">
+            <legend><strong>Account & Verification</strong></legend>
+
+            <label for="password">Create password</label>
+            <input id="password" name="password" type="password" placeholder="Choose a strong password" required />
+            <div class="small" style="margin-top:8px">Password must be at least 8 characters.</div>
+
+            <div style="margin-top:12px">
+              <label>Email verification OTP</label>
+              <div class="row" style="align-items:center">
+                <div style="flex:1">
+                  <button type="button" id="sendOtp">Send OTP to email</button>
+                </div>
+                <div style="width:160px">
+                  <input id="otpInput" class="otp-input" maxlength="6" placeholder="------" />
+                </div>
+                <div style="min-width:80px">
+                  <button type="button" id="verifyOtp">Verify</button>
+                </div>
+              </div>
+              <div id="otpStatus" class="small" style="margin-top:8px"></div>
+            </div>
+
+          </fieldset>
+
+          <div style="margin-top:16px" class="actions">
+            <button type="submit">Create account</button>
+            <a class="login-link" href="#" id="loginBtn">Login to registered account</a>
+            <div class="muted" style="margin-left:auto">Already have an account? Use the login link</div>
+          </div>
+
+          <div style="margin-top:12px" class="note">
+            This demo only implements client-side behaviour. In production: use HTTPS, server-side validation, encrypted storage for SSNs, virus scan for uploads, signed URLs for files, and regex + rate-limit OTPs.
+          </div>
+
+        </div>
+
+        <aside>
+          <fieldset>
+            <legend><strong>Driver's license (upload)</strong></legend>
+
+            <label for="dlFront">Front (image)</label>
+            <input id="dlFront" name="dlFront" type="file" accept="image/*" />
+            <div class="file-preview" id="frontPreview"></div>
+
+            <label for="dlBack" style="margin-top:12px">Back (image)</label>
+            <input id="dlBack" name="dlBack" type="file" accept="image/*" />
+            <div class="file-preview" id="backPreview"></div>
+
+            <div class="small" style="margin-top:10px">Accepted: JPG, PNG. Max size: enforced on server.</div>
+
+          </fieldset>
+
+          <fieldset style="margin-top:16px">
+            <legend><strong>Preview</strong></legend>
+            <div id="summary" class="small">No preview yet. Fill in details and press <em>Create account</em>.</div>
+          </fieldset>
+        </aside>
+      </form>
+
+    </div>
+  </div>
+
+<script>
+(function(){
+  const sendOtpBtn = document.getElementById('sendOtp');
+  const verifyOtpBtn = document.getElementById('verifyOtp');
+  const otpStatus = document.getElementById('otpStatus');
+  const otpInput = document.getElementById('otpInput');
+  const emailInput = document.getElementById('email');
+  let currentOtp = null; // in production, do NOT keep OTP in client
+  let otpSentAt = null;
+
+  function generateOtp(){
+    return String(Math.floor(100000 + Math.random()*900000));
+  }
+
+  sendOtpBtn.addEventListener('click', ()=>{
+    const email = emailInput.value.trim();
+    if(!email){ otpStatus.textContent = 'Enter an email first'; return; }
+    currentOtp = generateOtp();
+    otpSentAt = Date.now();
+    // DEMO: we can't actually send email from static demo. Replace with server call to send OTP.
+    otpStatus.innerHTML = `OTP sent (demo): <strong>${currentOtp}</strong>. In production this value is emailed and not shown.`;
+  });
+
+  verifyOtpBtn.addEventListener('click', ()=>{
+    if(!currentOtp){ otpStatus.textContent = 'No OTP was sent. Click "Send OTP to email" first.'; return; }
+    const value = otpInput.value.trim();
+    if(value === currentOtp && (Date.now()-otpSentAt) < 1000*60*15){
+      otpStatus.textContent = 'Email verified ✓';
+      otpInput.disabled = true;
+    } else {
+      otpStatus.textContent = 'OTP invalid or expired.';
+    }
+  });
+
+  // Image previews for DL front/back
+  function onFileChange(fileInput, previewContainer){
+    previewContainer.innerHTML = '';
+    const file = fileInput.files && fileInput.files[0];
+    if(!file) return;
+    if(!file.type.startsWith('image/')){ previewContainer.textContent = 'File is not an image.'; return; }
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.alt = 'Preview';
+    img.file = file;
+    previewContainer.appendChild(img);
+
+    const reader = new FileReader();
+    reader.onload = (e)=>{ img.src = e.target.result; };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('dlFront').addEventListener('change', e => onFileChange(e.target, document.getElementById('frontPreview')));
+  document.getElementById('dlBack').addEventListener('change', e => onFileChange(e.target, document.getElementById('backPreview')));
+
+  // Form submit: client-side validation and preview
+  const form = document.getElementById('signupForm');
+  const summary = document.getElementById('summary');
+  form.addEventListener('submit', e =>{
+    e.preventDefault();
+    const fullname = document.getElementById('fullname').value.trim();
+    const email = emailInput.value.trim();
+    const password = document.getElementById('password').value;
+    const ssn = document.getElementById('ssn').value;
+
+    if(!fullname || !email || !password){ alert('Please fill required fields.'); return; }
+    if(password.length < 8){ alert('Password too short.'); return; }
+    if(otpStatus.textContent.indexOf('verified') === -1){ if(!confirm('Email not verified. Continue anyway?')) return; }
+
+    // Build a preview. DO NOT send SSN in plain text to any server in production without proper encryption.
+    const frontFile = document.getElementById('dlFront').files[0];
+    const backFile = document.getElementById('dlBack').files[0];
+
+    let html = `<strong>${fullname}</strong><br>${email}<br>`;
+    html += `<div class="small">Phone: ${document.getElementById('phone').value || '(none)'}<br>Address: ${document.getElementById('address').value || '(none)'}<br>SSN: ${ssn ? '***-**-'+(ssn.slice(-4) || '****') : '(none)'} </div>`;
+    html += `<div style="margin-top:8px">`;
+    if(frontFile) html += `<div>Driver's license front: ${frontFile.name}</div>`;
+    if(backFile) html += `<div>Driver's license back: ${backFile.name}</div>`;
+    html += `</div>`;
+
+    summary.innerHTML = html;
+
+    // In production: package formData and POST to your server endpoint using fetch, send files directly with multipart/form-data,
+    // ensure server checks file types, scans for malware, validates OCR/ID verification as needed, encrypts SSN, and returns success.
+    alert('Form ready to be submitted to server (demo). See preview on right.');
+  });
+
+  // Login link behaviour (demo)
+  document.getElementById('loginBtn').addEventListener('click', (ev)=>{ ev.preventDefault(); alert('Demo: open login page or route to dashboard.'); });
+
+})();
+</script>
+</body>
+</html>
